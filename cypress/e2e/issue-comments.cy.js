@@ -1,3 +1,5 @@
+//To run the tests, you also have to download CommentModal.js file (download it to "pages" folder)
+
 import IssueModal from "../pages/IssueModal";
 import CommentModal from "../pages/CommentModal";
 
