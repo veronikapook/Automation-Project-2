@@ -1,6 +1,3 @@
-/**
- * This is an example file and approach for POM in Cypress
- */
 import IssueModal from "../../pages/IssueModal";
 
 describe("Issue delete", () => {
@@ -20,11 +17,10 @@ describe("Issue delete", () => {
   it("Should delete issue successfully", () => {
     IssueModal.clickDeleteButton();
     IssueModal.confirmDeletion();
-    cy.reload();
     IssueModal.ensureIssueIsNotVisibleOnBoard(issueTitle);
   });
 
-  it("Should cancel deletion process successfully", () => {
+  it("Should cancel deletion process successfully and validate", () => {
     IssueModal.clickDeleteButton();
     IssueModal.cancelDeletion();
     IssueModal.closeDetailModal();

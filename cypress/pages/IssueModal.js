@@ -86,12 +86,13 @@ class IssueModal {
     cy.contains(issueTitle).should("not.exist");
   }
 
-  validateIssueVisibilityState(issueTitle, isVisible = true) {
-    cy.get(this.issueDetailModal).should("not.exist");
-    cy.reload();
-    cy.get(this.backlogList).should("be.visible");
-    if (isVisible) cy.contains(issueTitle).should("be.visible");
-    if (!isVisible) cy.contains(issueTitle).should("not.exist");
+  validateAmountOfIssuesInBacklog(amountOfIssues) {
+    cy.get('[data-testid="board-list:backlog"]').within(() => {
+      cy.get('[data-testid="list-issue"]').should(
+        "have.length",
+        amountOfIssues
+      );
+    });
   }
 
   clickDeleteButton() {
@@ -101,6 +102,10 @@ class IssueModal {
 
   confirmDeletion() {
     cy.get(this.confirmationPopup).within(() => {
+      cy.contains("Are you sure you want to delete this issue?").should(
+        "be.visible"
+      );
+      cy.contains("Once you delete, it's gone for good").should("be.visible");
       cy.contains(this.deleteButtonName).click();
     });
     cy.get(this.confirmationPopup).should("not.exist");
@@ -109,6 +114,10 @@ class IssueModal {
 
   cancelDeletion() {
     cy.get(this.confirmationPopup).within(() => {
+      cy.contains("Are you sure you want to delete this issue?").should(
+        "be.visible"
+      );
+      cy.contains("Once you delete, it's gone for good").should("be.visible");
       cy.contains(this.cancelDeletionButtonName).click();
     });
     cy.get(this.confirmationPopup).should("not.exist");
