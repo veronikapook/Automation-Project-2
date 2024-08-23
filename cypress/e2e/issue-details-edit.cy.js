@@ -1,48 +1,51 @@
+import IssueModal from "../pages/IssueModal";
+
+// Constants
+const issueTitle = "This is an issue of type: Task.";
+const selectType = '[data-testid="select:type"]';
+const selectStatus = '[data-testid="select:status"]';
+const selectAssignees = '[data-testid="select:assignees"]';
+const selectReporter = '[data-testid="select:reporter"]';
+const selectPriority = '[data-testid="select:priority"]';
+const priorityMedium = '[data-testid="select-option:Medium"]';
+const titleInput = 'textarea[placeholder="Short summary"]';
+const descriptionField = ".ql-editor";
+
+// Functions
+const getIssueDetailsModal = () => cy.get(IssueModal.issueDetailModal);
+
 describe("Issue details editing", () => {
   beforeEach(() => {
-    cy.visit("/");
-    cy.url()
-      .should("eq", `${Cypress.env("baseUrl")}project`)
-      .then((url) => {
-        cy.visit(url + "/board");
-        cy.contains("This is an issue of type: Task.").click();
-      });
+    cy.visit("/board");
+    cy.contains(issueTitle).click();
   });
-
-  //vaata esimest mentor meetingut- seal rääkis varaiables (lõppes 18:27) ja jätkas 18:29
 
   it("Should update type, status, assignees, reporter, priority successfully", () => {
     getIssueDetailsModal().within(() => {
-      cy.get('[data-testid="select:type"]').click("bottomRight");
+      cy.get(selectType).click("bottomRight");
       cy.get('[data-testid="select-option:Story"]')
         .trigger("mouseover")
         .trigger("click");
-      cy.get('[data-testid="select:type"]').should("contain", "Story");
+      cy.get(selectType).should("contain", "Story");
 
-      cy.get('[data-testid="select:status"]').click("bottomRight");
+      cy.get(selectStatus).click("bottomRight");
       cy.get('[data-testid="select-option:Done"]').click();
-      cy.get('[data-testid="select:status"]').should("have.text", "Done");
+      cy.get(selectStatus).should("have.text", "Done");
 
-      cy.get('[data-testid="select:assignees"]').click("bottomRight");
+      cy.get(selectAssignees).click("bottomRight");
       cy.get('[data-testid="select-option:Lord Gaben"]').click();
-      cy.get('[data-testid="select:assignees"]').click("bottomRight");
+      cy.get(selectAssignees).click("bottomRight");
       cy.get('[data-testid="select-option:Baby Yoda"]').click();
-      cy.get('[data-testid="select:assignees"]').should("contain", "Baby Yoda");
-      cy.get('[data-testid="select:assignees"]').should(
-        "contain",
-        "Lord Gaben"
-      );
+      cy.get(selectAssignees).should("contain", "Baby Yoda");
+      cy.get(selectAssignees).should("contain", "Lord Gaben");
 
-      cy.get('[data-testid="select:reporter"]').click("bottomRight");
+      cy.get(selectReporter).click("bottomRight");
       cy.get('[data-testid="select-option:Pickle Rick"]').click();
-      cy.get('[data-testid="select:reporter"]').should(
-        "have.text",
-        "Pickle Rick"
-      );
+      cy.get(selectReporter).should("have.text", "Pickle Rick");
 
-      cy.get('[data-testid="select:priority"]').click("bottomRight");
-      cy.get('[data-testid="select-option:Medium"]').click();
-      cy.get('[data-testid="select:priority"]').should("have.text", "Medium");
+      cy.get(selectPriority).click("bottomRight");
+      cy.get(priorityMedium).click();
+      cy.get(selectPriority).should("have.text", "Medium");
     });
   });
 
@@ -70,6 +73,41 @@ describe("Issue details editing", () => {
     });
   });
 
-  const getIssueDetailsModal = () =>
-    cy.get('[data-testid="modal:issue-details"]');
+  it("Priority dropdown functionality checking", () => {
+    const priorityArray = [];
+    const expectedLength = 5;
+
+    getIssueDetailsModal().within(() => {
+      cy.get(selectPriority).each(($option) => {
+        priorityArray.push($option.text());
+        cy.log(
+          `Added value: ${$option.text()}, Array length: ${
+            priorityArray.length
+          }`
+        );
+      });
+
+      cy.get(selectPriority).click();
+      cy.get('[data-testid*="select-option:"]')
+        .each(($option) => {
+          priorityArray.push($option.text());
+          cy.log(
+            `Added value: ${$option.text()}, Array length: ${
+              priorityArray.length
+            }`
+          );
+        })
+        .then(() => {
+          expect(priorityArray.length).to.equal(expectedLength);
+        });
+    });
+  });
+
+  it("Should validate reporter name with regex", () => {
+    const regex = /^[A-Za-z\s]*$/;
+
+    getIssueDetailsModal().within(() => {
+      cy.get(selectReporter).invoke("text").should("match", regex);
+    });
+  });
 });
