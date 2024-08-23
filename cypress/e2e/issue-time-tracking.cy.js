@@ -79,102 +79,44 @@ describe("Time tracking entering, editing, and deleting", () => {
     });
   });
 
-  it.only("Should log time successfully", () => {
-    // Set initial estimate
-    cy.get(inputFieldTime).type(estimatedTime);
-    cy.get(inputFieldTime).should("have.value", estimatedTime);
-    cy.contains(`${estimatedTime}${estimatedTimeExpectedText}`).should(
-      "be.visible"
-    );
+  const getIssueDetailsModal = () =>
+    cy.get('[data-testid="modal:issue-details"]');
+  const getTrackingModal = () => cy.get('[data-testid="modal:tracking"]');
+  const Stopwatch = '[data-testid="icon:stopwatch"]';
+  const buttonClose = '[data-testid="icon:close"]';
+  const backloglist = '[data-testid="board-list:backlog"]';
+  let TimeEnter = 'input[placeholder="Number"]';
 
-    // Log time
-    openTimeTrackingAndChangeLoggedTime(loggedTime, remainingTime);
-
-    // Verify time tracking modal is closed
-    cy.get(timeTrackingModal).should("not.exist");
-
-    // Verify logged and remaining time are visible, estimated time is not
-    validateTime(loggedTime, loggedTimeExpectedText);
-    validateTime(remainingTime, remainingTimeExpectedText);
-    validateTime(estimatedTime, estimatedTimeExpectedText, false);
-
-    // Verify 'No time logged' is not visible
-    validateNoTimeLogged();
-
-    // Close and reopen issue to verify persistence
-    cy.get("body").type("{esc}");
-    cy.contains("This is an issue of type: Task.").click();
-
-    // Verify logged and remaining time are still visible after reopening
-    validateTime(loggedTime, loggedTimeExpectedText);
-    validateTime(remainingTime, remainingTimeExpectedText);
-  });
-
-  it.only("Should remove logged time successfully", () => {
-    // First, log some time
-    openTimeTrackingAndChangeLoggedTime(loggedTime, remainingTime);
-
-    // Verify logged time is visible
-    validateTime(loggedTime, loggedTimeExpectedText);
-    validateTime(remainingTime, remainingTimeExpectedText);
-
-    // Remove logged time
-    openTimeTrackingAndChangeLoggedTime(null, null, true);
-
-    // Verify 'No time logged' is visible
-    validateNoTimeLogged(true);
-
-    // Verify logged and remaining time are not visible, but estimated time is
-    validateTime(loggedTime, loggedTimeExpectedText, false);
-    validateTime(remainingTime, remainingTimeExpectedText, false);
-    validateTime(estimatedTime, estimatedTimeExpectedText);
-
-    // Close and reopen issue to verify persistence
-    cy.get("body").type("{esc}");
-    cy.contains("This is an issue of type: Task.").click();
-
-    // Verify 'No time logged' is still visible after reopening
-    validateNoTimeLogged(true);
-  });
-
-  function openTimeTrackingAndChangeLoggedTime(
-    loggedTime,
-    remainingTime,
-    shouldClearTime = false
-  ) {
-    cy.get(timeTrackingButton).click();
-    cy.get(timeTrackingModal)
+  it("Should log time and remove logged time succsessfully", () => {
+    //add estimation time to issue
+    getIssueDetailsModal().within(() => {
+      cy.get(Stopwatch).click();
+    });
+    getTrackingModal()
       .should("be.visible")
       .within(() => {
-        if (shouldClearTime) {
-          cy.get(inputFieldTime).eq(0).clear();
-          cy.get(inputFieldTime).eq(1).clear();
-        } else {
-          cy.get(inputFieldTime).eq(0).type(loggedTime);
-          cy.get(inputFieldTime).eq(1).type(remainingTime);
-        }
-
+        cy.get(TimeEnter).first().type(2);
+        cy.get(TimeEnter).last().type(5);
         cy.contains("button", "Done").click();
       });
-  }
 
-  function validateTime(
-    timeValue,
-    remainingPartOfString,
-    shouldBeVisible = true
-  ) {
-    if (shouldBeVisible) {
-      cy.contains(`${timeValue}${remainingPartOfString}`).should("be.visible");
-    } else {
-      cy.contains(`${timeValue}${remainingPartOfString}`).should("not.exist");
-    }
-  }
+    cy.contains("No time logged").should("not.exist");
+    cy.contains("2h logged").should("be.visible");
+    cy.contains("5h remaining").should("be.visible");
 
-  function validateNoTimeLogged(shouldShowNoTimeLogged = false) {
-    if (shouldShowNoTimeLogged) {
-      cy.contains("No time logged").should("be.visible");
-    } else {
-      cy.contains("No time logged").should("not.exist");
-    }
-  }
+    //delete time tracking data
+    cy.get(Stopwatch).click();
+    getTrackingModal()
+      .should("be.visible")
+      .within(() => {
+        cy.get(TimeEnter).first().clear();
+        cy.get(TimeEnter).last().clear();
+        cy.contains("button", "Done").click();
+      });
+    //assert that time time tracking data is not visible
+    cy.contains("2h logged").should("not.exist");
+    cy.contains("5h remaining").should("not.exist");
+    cy.contains("No time logged").should("be.visible");
+    cy.get("body").type("{esc}");
+  });
 });

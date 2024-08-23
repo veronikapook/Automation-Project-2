@@ -89,7 +89,7 @@ describe("Issue create", () => {
       );
     });
 
-     //Sprint 2, BONUSS, task 3. Test may need several reruns on Cypress to pass
+     //Sprint 2, BONUS, task 3. Test may need several reruns on Cypress to pass
 
   it.only("Ensure that the issue title does not have any leading or trailing spaces", () => {
     const randomDescription = faker.lorem.sentence();
