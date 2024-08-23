@@ -88,9 +88,10 @@ describe("Issue create", () => {
         "rgb(223, 225, 230)"
       );
     });
-  });
 
-  it.only("Should check if issue title has no leading nor trailing spaces", () => {
+     //Sprint 2, BONUSS, task 3. Test may need several reruns on Cypress to pass
+
+  it.only("Ensure that the issue title does not have any leading or trailing spaces", () => {
     const randomDescription = faker.lorem.sentence();
     const issueTitleWithExtraSpaces = `   ${faker.word.noun()}   `;
 
