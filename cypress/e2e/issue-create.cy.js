@@ -89,4 +89,27 @@ describe("Issue create", () => {
       );
     });
   });
+
+  it.only("Should check if issue title has no leading nor trailing spaces", () => {
+    const randomDescription = faker.lorem.sentence();
+    const issueTitleWithExtraSpaces = `   ${faker.word.noun()}   `;
+
+    cy.get('[data-testid="modal:issue-create"]').within(() => {
+      cy.get(".ql-editor")
+        .type(randomDescription)
+        .should("have.text", randomDescription);
+      cy.get('input[name="title"]')
+        .type(issueTitleWithExtraSpaces)
+        .should("have.value", issueTitleWithExtraSpaces);
+      cy.get('button[type="submit"]').click();
+    });
+    const trimmedTitle = issueTitleWithExtraSpaces.trim();
+
+    // Validate that the board have trimmed title
+    cy.get('[data-testid="list-issue"]', { timeout: 60000 })
+      .first()
+      .should("be.visible")
+      .and("contain", trimmedTitle)
+      .click();
+  });
 });
